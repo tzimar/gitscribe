@@ -1,12 +1,13 @@
 version="1.0.0"
 
 Help(){
-    echo "usage: gitscribe.sh [-h] [-n] [-d directory] [-f frequency]"
+    echo "usage: gitscribe.sh [-h] [-n] [-d directory] [-f frequency] [-p [frequency]]"
     echo
     echo "h     Help"
     echo "n     Create repository"
     echo "d     Set working directory"
     echo "f     Polling frequency (seconds)"
+    echo "p     Enable push mode (automatically pushes to remote)"
 }
 
 InstallDependencies(){
@@ -59,7 +60,7 @@ CheckRepo(){
 
 SyncRepo(){
 
-    if [[ -z $remote ]]; then
+    if [[ -z "$remote" ]]; then
         return
     fi
 
@@ -77,6 +78,17 @@ SyncRepo(){
     fi
 }
 
+PushRepo(){
+
+    if [[ -z "$remote" ]]; then
+        return
+    fi
+
+    if ! git push; then
+        echo "Unable to push to remote."
+    fi
+}
+
 Main(){
 
     InstallDependencies
@@ -85,7 +97,10 @@ Main(){
     init_repo=false
     freq=1
 
-    while getopts "hnd:f:" opt; do
+    push_mode=false
+    push_freq=60
+
+    while getopts "hnd:f:p:" opt; do
         case $opt in
             h)
                 Help
@@ -99,6 +114,10 @@ Main(){
                 ;;
             f)
                 freq=$OPTARG
+                ;;
+            p)
+                push_mode=true
+                push_freq=$OPTARG
                 ;;
            \?)
                 echo "Invalid option."
@@ -131,8 +150,19 @@ Main(){
     CheckRepo
     SyncRepo
     
+    last_push_time=0
     while sleep $freq; do
         CheckRepo
+
+        if $push_mode; then
+            current_time=$(date +%s)
+            d=$(( $current_time - $last_push_time ))
+            if [[ "$d" -gt "$push_freq" ]]; then
+                SyncRepo
+                PushRepo
+                last_push_time=$current_time
+            fi
+        fi
     done
 }
 
