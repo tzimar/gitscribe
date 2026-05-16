@@ -9,6 +9,15 @@ Help(){
     echo "f     Polling frequency (seconds)"
 }
 
+InstallDependencies(){
+    if [[ ! -f "/usr/local/bin/notify-send.exe" ]]; then
+        notify_send_url="https://github.com/vaskovsky/notify-send/releases/download/v4.0.1/notify-send.exe.4.0.1.zip"
+        notify_send_tmp_path=$(mktemp)
+        curl -s -L "$notify_send_url" | funzip > "$notify_send_tmp_path"
+        mv "$notify_send_tmp_path" /usr/local/bin/notify-send.exe
+    fi
+}
+
 InitRepo(){
     git init
 
@@ -48,7 +57,29 @@ CheckRepo(){
     fi
 }
 
+SyncRepo(){
+
+    if [[ -z $remote ]]; then
+        return
+    fi
+
+    if ! git fetch $remote; then
+        echo "Unable to fetch from remote."
+        return
+    fi
+
+    if git merge-base --is-ancestor $remote_branch $local_branch; then
+        git merge --ff-only $remote_branch
+    elif ! git rebase $remote_branch; then
+        echo "Local and remote are out of sync. Please resolve conflicts."
+        notify-send -i error "Gitscribe" "Out of sync. Resolve conflicts."
+        exit
+    fi
+}
+
 Main(){
+
+    InstallDependencies
 
     dir=$PWD
     init_repo=false
@@ -64,7 +95,7 @@ Main(){
                 init_repo=true
                 ;;
             d)
-                dir=$(realpath "$dir/$OPTARG")
+                dir=$(realpath "$OPTARG")
                 ;;
             f)
                 freq=$OPTARG
@@ -93,6 +124,13 @@ Main(){
         exit
     fi
 
+    local_branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
+    remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+    remote=$(git config branch.$local_branch.remote)
+    
+    CheckRepo
+    SyncRepo
+    
     while sleep $freq; do
         CheckRepo
     done
