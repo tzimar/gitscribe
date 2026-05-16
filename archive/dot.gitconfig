@@ -1,0 +1,7 @@
+[user]
+    name = tzimar
+    email = 275237023+tzimar@users.noreply.github.com
+
+[alias]
+    l = log --format=format:'%C(yellow)%cr, %ad%C(reset)\n' -p -U0
+    c = ! ./changes.sh

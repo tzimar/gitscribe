@@ -1,0 +1,1 @@
+tar -C archive -cvf - . | base64 > .archive.tar.b64
