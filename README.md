@@ -4,4 +4,4 @@ Gitscribe is a simple utility that creates a local Git repository, polls the wor
 
 ## Distribution
 
-`gitscribe.sh` is self-extracting. Any necessary resources are stored in the `archive` folder of this repo. When they're modified, run `pack.sh` and copy the contents of `.archive.tar.b64` into the `archive` variable in `gitscribe.sh`. This will be made smoother later.
+`gitscribe.sh` is self-extracting. Any necessary resources are stored in the `archive` folder of this repo. Run `pack.sh` to bundle them into the main script.
