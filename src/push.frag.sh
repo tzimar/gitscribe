@@ -4,7 +4,7 @@ function PushRepo {
         return
     fi
 
-    if ! git push; then
+    if ! git push &> /dev/null; then
         echo "Unable to push to remote."
     fi
 }
