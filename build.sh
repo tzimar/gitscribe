@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="2.3.4"
+version="2.4.0"
 output_dir=build
 output=$output_dir/gitscribe.sh
 
@@ -14,6 +14,7 @@ sources=(
   "push"
 
   "ip/lock"
+  "ip/pipe"
 
   "cli/dependencies"
   "cli/archive"

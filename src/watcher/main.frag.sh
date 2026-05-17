@@ -1,12 +1,24 @@
-function Watcher {
+watcher_paused=false
 
-    # TODO: Implement properly
-    #if $watcher_pause; then
-    #    return
-    #fi
+function Watcher {
 
     last_push_time=0
     while sleep $freq; do
+
+        case $(ReadPipe) in
+          pause)
+            watcher_paused=true
+            ;;
+          unpause)
+            watcher_paused=false
+            ;;
+          *)
+            ;;
+        esac
+
+        if $watcher_paused; then
+          continue
+        fi
 
         if ! AcquireLock "Watcher"; then
             continue

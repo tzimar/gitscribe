@@ -20,12 +20,12 @@ function HandleCommand {
             SyncRepo
             PushRepo
             ;;
-        # pause)
-        #     watcher_pause=true
-        #     ;;
-        # unpause)
-        #     watcher_pause=false
-        #     ;;
+        pause)
+            WritePipe "pause"
+            ;;
+        unpause)
+            WritePipe "unpause"
+            ;;
         history)
             History
             ;;
@@ -123,7 +123,9 @@ function Main {
     CheckRepo
     SyncRepo
     ReleaseLock "Main"
-    
+
+    SetupPipe
+
     Watcher &
     watcher_pid=$!
     disown $watcher_pid
