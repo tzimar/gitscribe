@@ -1,4 +1,4 @@
-ExecHelp(){
+function ExecHelp {
     echo "usage: gitscribe.sh [-h] [-l] [-c command] [-n] 
                               [-d directory] [-f frequency] 
                               [-p [frequency]]"
@@ -12,7 +12,7 @@ ExecHelp(){
     echo "p     Enable push mode (automatically pushes to remote)"
 }
 
-CommandHelp(){
+function CommandHelp {
     echo "usage: <command> [<argument>...]"
     echo
     echo "exit/quit"

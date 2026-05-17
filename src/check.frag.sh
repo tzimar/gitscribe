@@ -1,4 +1,4 @@
-CheckRepo(){
+function CheckRepo {
     msg=""
 
     new_files=($(git ls-files --others --exclude-standard))

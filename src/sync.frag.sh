@@ -1,4 +1,4 @@
-SyncRepo(){
+function SyncRepo {
 
     if [[ -z "$remote" ]]; then
         return

@@ -1,4 +1,4 @@
-PushRepo(){
+function PushRepo {
 
     if [[ -z "$remote" ]]; then
         return

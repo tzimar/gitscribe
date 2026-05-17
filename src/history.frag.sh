@@ -1,5 +1,5 @@
-History(){
-    HistoryChanges(){
+function History {
+  function HistoryChanges {
 
         log=$(git log --format=">>>COMMIT %ad %ar" -p -U0)
 

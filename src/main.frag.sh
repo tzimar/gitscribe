@@ -1,6 +1,6 @@
 watcher_pause=false
 
-Watcher(){
+function Watcher {
 
     if $watcher_pause; then
         return
@@ -29,7 +29,7 @@ Watcher(){
     done
 }
 
-HandleCommand(){
+function HandleCommand {
     parts=($1)
     command="${parts[0]}"
 
@@ -61,7 +61,7 @@ HandleCommand(){
     ReleaseLock "CommandLoop"
 }
 
-Main(){
+function Main {
 
     InstallDependencies
 

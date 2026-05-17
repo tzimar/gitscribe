@@ -1,4 +1,4 @@
-InitRepo(){
+function InitRepo {
     git init
 
     git config --global --add safe.directory $(pwd -P)
