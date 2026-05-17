@@ -1,4 +1,4 @@
-version="2.1.0"
+version="2.1.1"
 
 Help(){
     echo "usage: gitscribe.sh [-h] [-l] [-n] [-d directory] [-f frequency] [-p [frequency]]"
@@ -104,7 +104,7 @@ InstallDependencies(){
 
 UnpackArchive(){
     echo "$archive" | base64 -d > .gitscribe.tar
-    tar -xvf .gitscribe.tar
+    tar -xf .gitscribe.tar
     rm .gitscribe.tar
 }
 
