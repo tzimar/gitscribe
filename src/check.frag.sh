@@ -15,7 +15,7 @@ function CheckRepo {
 
         git add .
         if [[ -n "$(git status -s)" ]]; then
-            git commit --quiet --allow-empty-message -m ""
+            git commit --quiet -m "${all_files[@]}"
         fi
     fi
 }
