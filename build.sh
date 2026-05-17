@@ -7,17 +7,21 @@ output=$output_dir/gitscribe.sh
 archiveb64=$(tar -C archive -cf - . | base64)
 
 sources=(
-  "dependencies"
-  "lock"
-  "archive"
   "trap"
 
-  "help"
-  "history"
   "sync"
   "check"
   "push"
-  "main"
+
+  "ip/lock"
+
+  "cli/dependencies"
+  "cli/archive"
+  "cli/help"
+  "cli/history"
+  "cli/main"
+
+  "watcher/main"
 )
 
 variables=(
