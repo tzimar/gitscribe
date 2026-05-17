@@ -1,4 +1,4 @@
-version="1.0.0"
+version="2.0.0"
 
 Help(){
     echo "usage: gitscribe.sh [-h] [-n] [-d directory] [-f frequency] [-p [frequency]]"
