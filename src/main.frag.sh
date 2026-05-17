@@ -154,7 +154,7 @@ function Main {
     
     Watcher &
     watcher_pid=$!
-    trap "kill $watcher_pid" EXIT SIGINT SIGTERM
+    trap "kill -9 $watcher_pid" EXIT SIGINT SIGTERM
 
     stop_command_loop=0
     trap "stop_command_loop=1" EXIT SIGINT SIGTERM
