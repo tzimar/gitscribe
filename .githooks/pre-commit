@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# remove archive payload
-if [[ -n $(git diff --name-only --cached | grep gitscribe.sh) ]]; then
-  f='archive="[-A-Za-z0-9+\/=\r\n]*"'
-  r='archive=""'
-  perl -0777 -i -pe 's/'"$f"'/'"$r"'/gs' gitscribe.sh
-  git add gitscribe.sh
-fi

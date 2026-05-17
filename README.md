@@ -8,6 +8,10 @@ Gitscribe currently only supports Windows.
 
 Run `git.sh` to configure your local repository after cloning.
 
+## Build
+
+The script is separated into a number of fragments in `src/` which must be built with `build.sh`. The output is `build/gitscribe.sh`.
+
 ## Distribution
 
-`gitscribe.sh` is self-extracting. Any necessary resources are stored in the `archive` folder of this repo. Run `pack.sh` to bundle them into the main script.
+`gitscribe.sh` is self-extracting. Any necessary resources are stored in the `archive` folder of this repo, and bundled when building the script.
