@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="2.1.1"
+version="2.2.0"
 output_dir=build
 output=$output_dir/gitscribe.sh
 
@@ -8,7 +8,9 @@ archiveb64=$(tar -C archive -cf - . | base64)
 
 sources=(
   "dependencies"
+  "lock"
   "archive"
+
   "help"
   "history"
   "sync"

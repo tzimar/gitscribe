@@ -1,3 +1,63 @@
+watcher_pause=false
+
+Watcher(){
+
+    if $watcher_pause; then
+        return
+    fi
+
+    last_push_time=0
+    while sleep $freq; do
+
+        if ! AcquireLock "Watcher"; then
+            continue
+        fi 
+
+        CheckRepo
+
+        if $push_mode; then
+            current_time=$(date +%s)
+            d=$(( $current_time - $last_push_time ))
+            if [[ "$d" -gt "$push_freq" ]]; then
+                SyncRepo
+                PushRepo
+                last_push_time=$current_time
+            fi
+        fi
+
+        ReleaseLock "Watcher"
+    done
+}
+
+HandleCommand(){
+    parts=($1)
+    command="${parts[0]}"
+
+    AcquireLock "CommandLoop"
+    case $command in 
+        exit | quit)
+            stop_command_loop=1
+            ;;
+        sync)
+            SyncRepo
+            ;;
+        push)
+            SyncRepo
+            PushRepo
+            ;;
+        pause)
+            watcher_pause=true
+            ;;
+        unpause)
+            watcher_pause=false
+            ;;
+        history)
+            History
+            ;;
+    esac
+    ReleaseLock "CommandLoop"
+}
+
 Main(){
 
     InstallDependencies
@@ -7,11 +67,12 @@ Main(){
     freq=1
 
     history=false
+    command=""
 
     push_mode=false
     push_freq=60
 
-    while getopts "hlnd:f:p:" opt; do
+    while getopts "hlc:nd:f:p:" opt; do
         case $opt in
             h)
                 Help
@@ -19,6 +80,9 @@ Main(){
                 ;;
             l)
                 history=true
+                ;;
+            c)
+                command="$OPTARG"
                 ;;
             n)
                 init_repo=true
@@ -72,22 +136,28 @@ Main(){
         History
         exit
     fi
+
+    CreateLock
+
+    if [[ -n "$command" ]]; then
+        HandleCommand "$command"
+        exit
+    fi
     
+    AcquireLock "Main"
     CheckRepo
     SyncRepo
+    ReleaseLock "Main"
     
-    last_push_time=0
-    while sleep $freq; do
-        CheckRepo
+    Watcher &
+    watcher_pid=$!
+    trap "kill $watcher_pid" EXIT SIGINT SIGTERM
 
-        if $push_mode; then
-            current_time=$(date +%s)
-            d=$(( $current_time - $last_push_time ))
-            if [[ "$d" -gt "$push_freq" ]]; then
-                SyncRepo
-                PushRepo
-                last_push_time=$current_time
-            fi
+    stop_command_loop=0
+    trap "stop_command_loop=1" EXIT SIGINT SIGTERM
+    while [[ $stop_command_loop -eq 0 ]]; do
+        if read -p "gitscribe > " user_input; then
+            HandleCommand "$user_input"
         fi
     done
 }
