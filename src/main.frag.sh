@@ -33,7 +33,10 @@ function HandleCommand {
     parts=($1)
     command="${parts[0]}"
 
-    AcquireLock "CommandLoop"
+    until AcquireLock "Watcher"; do
+        sleep 1
+    done
+
     case $command in 
         exit | quit)
             stop_command_loop=1
