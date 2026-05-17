@@ -1,4 +1,4 @@
-version="2.0.1"
+version="2.0.2"
 
 Help(){
     echo "usage: gitscribe.sh [-h] [-n] [-d directory] [-f frequency] [-p [frequency]]"
@@ -145,10 +145,12 @@ Main(){
         echo "No repository in this directory."
         exit
     else
-        # merge .gitignore files
-        UnpackArchive
-        cat .gitscribe.gitignore >> .gitignore
-        rm .gitscribe.gitignore
+        if [ ! -f ".gitignore" ] || ! grep -q "gitscribe.sh" ".gitignore"; then
+            # merge .gitignore files
+            UnpackArchive
+            cat .gitscribe.gitignore >> .gitignore
+            rm .gitscribe.gitignore
+        fi
     fi
 
     local_branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
