@@ -7,9 +7,8 @@ function History {
             return
         fi
 
-        echo "$log" | csplit -s - '%>>>COMMIT %' '/>>>COMMIT /' '{*}'
-        perl -e 'for(@ARGV) { $old=$_; s/xx([0-9]+)/xxcommit$1/; rename($old, $_) if -e $old }' xx*
-        commits=(xxcommit*)
+        echo "$log" | csplit -f .gitscribe.csplit.commit -s - '%>>>COMMIT %' '/>>>COMMIT /' '{*}'
+        commits=(.gitscribe.csplit.commit*)
 
         for commit in "${commits[@]}"; do
             commit="$(<$commit)"
@@ -29,9 +28,8 @@ function History {
 
             echo "--- "$'\033[35m'"$timestamp"$'\033[0m'" ---"
 
-            echo "$commit" | csplit -s - '%diff --git a%' '/diff --git a/' '{*}'
-            perl -e 'for(@ARGV) { $old=$_; s/xx([0-9]+)/xxfile$1/; rename($old, $_) if -e $old }' xx*
-            files=(xxfile*)
+            echo "$commit" | csplit -f .gitscribe.csplit.file -s - '%diff --git a%' '/diff --git a/' '{*}'
+            files=(.gitscribe.csplit.file*)
 
             for file in "${files[@]}"; do
                 file="$(<$file)"
@@ -69,13 +67,14 @@ function History {
 
             done
 
-            rm xxfile*
+            rm .gitscribe.csplit.file*
 
         done
+
+        rm .gitscribe.csplit.commit*
     }
 
-    trap "rm xx*; sed -i '/xx*/d' .gitignore" EXIT
+    trap "rm .gitscribe.csplit.*" EXIT
 
-    echo "xx*" >> .gitignore
     HistoryChanges | less --RAW-CONTROL-CHARS
 }
