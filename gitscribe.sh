@@ -1,4 +1,4 @@
-version="2.0.0"
+version="2.0.1"
 
 Help(){
     echo "usage: gitscribe.sh [-h] [-n] [-d directory] [-f frequency] [-p [frequency]]"
@@ -19,16 +19,19 @@ InstallDependencies(){
     fi
 }
 
+UnpackArchive(){
+    echo "$archive" | base64 -d > .gitscribe.tar
+    tar -xvf .gitscribe.tar
+    rm .gitscribe.tar
+}
+
 InitRepo(){
     git init
 
     git config --global --add safe.directory $(pwd -P)
 
-    # unpack archive
-    echo "$archive" | base64 -d > .gitscribe.tar
-    tar -xvf .gitscribe.tar
-    rm .gitscribe.tar
-    regex='dot(\..*)'
+    UnpackArchive
+    regex='.gitscribe(\..+)'
     for f in dot.*; do
         [[ $f =~ $regex ]] && mv "$f" "${BASH_REMATCH[1]}"
     done
@@ -141,6 +144,11 @@ Main(){
     elif [ ! -d .git ]; then
         echo "No repository in this directory."
         exit
+    else
+        # merge .gitignore files
+        UnpackArchive
+        cat .gitscribe.gitignore >> .gitignore
+        rm .gitscribe.gitignore
     fi
 
     local_branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
