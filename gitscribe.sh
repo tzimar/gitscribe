@@ -1,13 +1,96 @@
-version="2.0.2"
+version="2.1.0"
 
 Help(){
-    echo "usage: gitscribe.sh [-h] [-n] [-d directory] [-f frequency] [-p [frequency]]"
+    echo "usage: gitscribe.sh [-h] [-l] [-n] [-d directory] [-f frequency] [-p [frequency]]"
     echo
     echo "h     Help"
+    echo "l     History"
     echo "n     Create repository"
     echo "d     Set working directory"
     echo "f     Polling frequency (seconds)"
     echo "p     Enable push mode (automatically pushes to remote)"
+}
+
+History(){
+    HistoryChanges(){
+
+        log=$(git log --format=">>>COMMIT %ad %ar" -p -U0)
+
+        if ! echo "$log" | grep -q '>>>COMMIT '; then
+            return
+        fi
+
+        echo "$log" | csplit -s - '%>>>COMMIT %' '/>>>COMMIT /' '{*}'
+        perl -e 'for(@ARGV) { $old=$_; s/xx([0-9]+)/xxcommit$1/; rename($old, $_) if -e $old }' xx*
+        commits=(xxcommit*)
+
+        for commit in "${commits[@]}"; do
+            commit="$(<$commit)"
+
+            if [[ -z "$commit" ]]; then
+                continue
+            fi
+
+            if ! echo "$commit" | grep -q 'diff --git a'; then
+                continue
+            fi
+
+            timestamp_re=">>>COMMIT (.*) ago"
+            if [[ "$commit" =~ $timestamp_re ]]; then
+                timestamp=${BASH_REMATCH[1]}" ago"
+            fi
+
+            echo "--- "$'\033[35m'"$timestamp"$'\033[0m'" ---"
+
+            echo "$commit" | csplit -s - '%diff --git a%' '/diff --git a/' '{*}'
+            perl -e 'for(@ARGV) { $old=$_; s/xx([0-9]+)/xxfile$1/; rename($old, $_) if -e $old }' xx*
+            files=(xxfile*)
+
+            for file in "${files[@]}"; do
+                file="$(<$file)"
+
+                if [[ -z "$file" ]]; then
+                    continue
+                fi
+
+                filename_re="diff --git a\/([a-zA-Z_.\/]+) b\/([a-zA-Z_.\/]+)"
+                if [[ "$file" =~ $filename_re ]]; then
+                    filename=${BASH_REMATCH[1]}
+                fi
+                echo "$filename"
+
+                content=$(echo "$file" | grep -v -e '^[^+-]' -e '^$' -e '^---' -e '^+++')
+                if [[ -n $content ]]; then
+                    echo "$content" | awk '
+                    {
+                        # Extract the first character
+                        first = substr($0, 1, 1)
+                        if (first == "-") {
+                            print "\033[31m" $0 "\033[0m"
+                        } else if (first == "+") {
+                            print "\033[32m" $0 "\033[0m"
+                        } else {
+                            # Default color
+                            print $0
+                        }
+                    }'
+                else
+                    echo $'\033[33m'"<""$(echo "$file" | grep -v -e '^$' -e '^index' -e '^[+-]' -e '^diff' -e '^---' -e '^+++')"">"$'\033[0m'
+                fi
+
+                echo
+
+            done
+
+            rm xxfile*
+
+        done
+    }
+
+    trap "rm xx*; sed -i '/xx*/d' .gitignore" EXIT
+
+    echo "xx*" >> .gitignore
+    HistoryChanges | less --RAW-CONTROL-CHARS
 }
 
 InstallDependencies(){
@@ -100,14 +183,19 @@ Main(){
     init_repo=false
     freq=1
 
+    history=false
+
     push_mode=false
     push_freq=60
 
-    while getopts "hnd:f:p:" opt; do
+    while getopts "hlnd:f:p:" opt; do
         case $opt in
             h)
                 Help
                 exit
+                ;;
+            l)
+                history=true
                 ;;
             n)
                 init_repo=true
@@ -156,6 +244,11 @@ Main(){
     local_branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
     remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
     remote=$(git config branch.$local_branch.remote)
+
+    if $history; then
+        History
+        exit
+    fi
     
     CheckRepo
     SyncRepo
