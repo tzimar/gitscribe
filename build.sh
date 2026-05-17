@@ -10,6 +10,7 @@ sources=(
   "dependencies"
   "lock"
   "archive"
+  "trap"
 
   "help"
   "history"

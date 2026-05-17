@@ -67,14 +67,14 @@ function History {
 
             done
 
-            rm .gitscribe.csplit.file*
+            rm -f .gitscribe.csplit.file*
 
         done
 
-        rm .gitscribe.csplit.commit*
+        rm -f .gitscribe.csplit.commit*
     }
 
-    trap "rm .gitscribe.csplit.*" EXIT
+    Trap "rm -f .gitscribe.csplit.*" EXIT SIGINT SIGTERM
 
     HistoryChanges | less --RAW-CONTROL-CHARS
 }

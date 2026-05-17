@@ -21,7 +21,8 @@ function AcquireLock {
 
     if mkdir "$lock_dir" 2>/dev/null; then
         LogLock "$1 acquired lock."
-        trap "LogLock \"Released lock in emergency.\"; rm -rf \"$lock_dir\"" EXIT SIGINT SIGTERM
+        Trap "LogLock \"Released lock in emergency.\"" EXIT SIGINT SIGTERM
+        Trap "rm -rf \"$lock_dir\"" EXIT SIGINT SIGTERM
         return 0
     else
         LogLock "$1 failed to acquire lock."

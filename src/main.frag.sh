@@ -154,10 +154,11 @@ function Main {
     
     Watcher &
     watcher_pid=$!
-    trap "kill -9 $watcher_pid" EXIT SIGINT SIGTERM
+    disown $watcher_pid
+    Trap "kill -9 $watcher_pid" EXIT SIGINT SIGTERM
 
     stop_command_loop=0
-    trap "stop_command_loop=1" EXIT SIGINT SIGTERM
+    Trap "stop_command_loop=1" EXIT SIGINT SIGTERM
     while [[ $stop_command_loop -eq 0 ]]; do
         if read -p "gitscribe > " user_input; then
             HandleCommand "$user_input"
