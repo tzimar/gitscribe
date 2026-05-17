@@ -38,6 +38,9 @@ HandleCommand(){
         exit | quit)
             stop_command_loop=1
             ;;
+        help)
+            CommandHelp
+            ;;
         sync)
             SyncRepo
             ;;
@@ -75,7 +78,7 @@ Main(){
     while getopts "hlc:nd:f:p:" opt; do
         case $opt in
             h)
-                Help
+                ExecHelp
                 exit
                 ;;
             l)
