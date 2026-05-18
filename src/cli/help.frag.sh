@@ -19,6 +19,7 @@ function CommandHelp {
     echo "history"
     echo "sync          Pull changes from remote"
     echo "push          Push changes to remote"
-    #echo "pause         Pause repo watcher"
-    #echo "unpause       Unpause repo watcher"
+    echo "pause         Pause repo watcher"
+    echo "unpause       Unpause repo watcher"
+    echo "resolve       Mark sync conflicts as resolved"
 }

@@ -1,4 +1,20 @@
+function RebaseInProgress {
+    if [[ -n $(git diff --name-only --diff-filter=U) ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 function CheckRepo {
+
+    if RebaseInProgress; then
+        echo "Please resolve conflicts."
+        WatcherSetPause true
+        WatcherSetRebasing true
+        return
+    fi
+
     msg=""
 
     new_files=($(git ls-files --others --exclude-standard))

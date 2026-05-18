@@ -1,20 +1,12 @@
 watcher_paused=false
+watcher_paused_for_rebase=false
 
 function Watcher {
 
     last_push_time=0
     while sleep $freq; do
 
-        case $(ReadPipe) in
-          pause)
-            watcher_paused=true
-            ;;
-          unpause)
-            watcher_paused=false
-            ;;
-          *)
-            ;;
-        esac
+        eval "$(ReadPipe)"
 
         if $watcher_paused; then
           continue

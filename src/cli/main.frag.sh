@@ -1,12 +1,10 @@
 function HandleCommand {
-    parts=($1)
-    command="${parts[0]}"
 
     until AcquireLock "Watcher"; do
         sleep 1
     done
 
-    case $command in 
+    case $1 in
         exit | quit)
             stop_command_loop=1
             ;;
@@ -21,10 +19,24 @@ function HandleCommand {
             PushRepo
             ;;
         pause)
-            WritePipe "pause"
+            WatcherSetPause true
             ;;
         unpause)
-            WritePipe "unpause"
+            WatcherSetPause false
+            ;;
+        resolve)
+            if RebaseInProgress; then
+                git add .
+                git -c core.editor=true rebase --continue
+
+                if RebaseInProgress; then
+                    echo "More conflicts to resolve:"
+                    git diff --name-only --diff-filter=U
+                else
+                    echo "All conflicts resolved."
+                    WatcherSetRebasing false
+                fi
+            fi
             ;;
         history)
             History
@@ -34,6 +46,7 @@ function HandleCommand {
 }
 
 function Main {
+    main_pid="$$"
 
     InstallDependencies
 
@@ -114,8 +127,10 @@ function Main {
 
     CreateLock
 
+    watcher_pid=""
+
     if [[ -n "$command" ]]; then
-        HandleCommand "$command"
+        HandleCommand $command
         exit
     fi
     
@@ -126,6 +141,10 @@ function Main {
 
     SetupPipe
 
+    if RebaseInProgress; then
+        watcher_paused=true
+    fi
+
     Watcher &
     watcher_pid=$!
     disown $watcher_pid
@@ -135,7 +154,7 @@ function Main {
     Trap "stop_command_loop=1" EXIT SIGINT SIGTERM
     while [[ $stop_command_loop -eq 0 ]]; do
         if read -p "gitscribe > " user_input; then
-            HandleCommand "$user_input"
+            HandleCommand $user_input
         fi
     done
 }

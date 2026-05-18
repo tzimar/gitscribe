@@ -4,6 +4,13 @@ function SyncRepo {
         return
     fi
 
+    if RebaseInProgress; then
+        echo "Please resolve conflicts."
+        WatcherSetPause true
+        WatcherSetRebasing true
+        return
+    fi
+
     if ! git fetch $remote &> /dev/null; then
         echo "Unable to fetch from remote."
         return
@@ -14,6 +21,6 @@ function SyncRepo {
     elif ! git rebase $remote_branch &> /dev/null; then
         echo "Local and remote are out of sync. Please resolve conflicts."
         notify-send -i error "Gitscribe" "Out of sync. Resolve conflicts."
-        exit
+        WatcherSetRebasing true
     fi
 }

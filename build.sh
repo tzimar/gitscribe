@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="2.4.2"
+version="2.5.0"
 output_dir=build
 output=$output_dir/gitscribe.sh
 
@@ -22,6 +22,7 @@ sources=(
   "cli/history"
   "cli/main"
 
+  "watcher/interface"
   "watcher/main"
 )
 
