@@ -1,6 +1,5 @@
 function SetupPipe {
   watcher_pipe="$(mktemp -d)/watcher_pipe"
-  echo "Watcher pipe: $watcher_pipe"
   mkfifo "$watcher_pipe"
   exec 3<> "$watcher_pipe"
 }
