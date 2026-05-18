@@ -134,16 +134,17 @@ function Main {
         exit
     fi
     
-    AcquireLock "Main"
-    CheckRepo
-    SyncRepo
-    ReleaseLock "Main"
+    if RebaseInProgress; then
+        echo "Please resolve conflicts."
+        watcher_paused=true
+    else
+        AcquireLock "Main"
+        CheckRepo
+        SyncRepo
+        ReleaseLock "Main"
+    fi
 
     SetupPipe
-
-    if RebaseInProgress; then
-        watcher_paused=true
-    fi
 
     Watcher &
     watcher_pid=$!

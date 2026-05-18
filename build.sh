@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="2.5.1"
+version="2.5.2"
 output_dir=build
 output=$output_dir/gitscribe.sh
 
